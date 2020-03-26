@@ -1,6 +1,9 @@
 setwd("/Users/sobil/Documents/MSC/Sem 1/Statistics for Data Analytics/Lab/Project/Multi_linear")
 remove(list = ls())
 
+library(psych)
+library(leaps)
+library(car)
 #
 cellular <- read.csv("Cellular.csv", stringsAsFactors = FALSE)
 cellular <- cellular[,-c(2,4)]
@@ -33,11 +36,26 @@ cellular <- cellular[,-1]
 
 # checking distribution & outliers
 summary(cellular)
-boxplot(cellular$cellular) # no outliers
+str(cellular)
+
+sapply(cellular, sd, na.rm = TRUE)
+cat("Size : ", nrow(cellular) , " obs. of " , length(cellular), "variables")
+
 hist(cellular$cellular) # normally distributed
 
+par(mfrow = c(1,2))
+hist(cellular$cellular, # histogram
+     col="peachpuff", # column color
+     border="black",
+     prob = TRUE, # show densities instead of frequencies
+     xlab = "Cellular subscription",
+     main = "Histogram")
+lines(density(cellular$cellular), # density plot
+      lwd = 2, # thickness of line
+      col = "chocolate3")
+boxplot(cellular$cellular, main = "Box plot", ylab = "Cellular subscription") # no outliers
+
 # checking correlation
-library(psych)
 psych::pairs.panels(cellular)
 
 # Model 1
@@ -89,6 +107,17 @@ durbinWatsonTest(cellular.fit9)
 # Predictor variables must be independent of the error term (Omitted variable bias!) :: 
 # We assume that our errors are normally distributed :: From Q-Q plot and histogram
 par(mfrow = c(1,1))
+
+hist(cellular.fit9$residuals, # histogram
+     col="peachpuff", # column color
+     border="black",
+     prob = TRUE, # show densities instead of frequencies
+     xlab = "Residuals",
+     main = "Residuals Normality check")
+lines(density(cellular.fit9$residuals), # density plot
+      lwd = 2, # thickness of line
+      col = "chocolate3")
+
 hist(cellular.fit9$residuals) # is near to normal distribution
 # We assume there is no multicollinearity between predictors ::
 vif(cellular.fit9)
@@ -124,7 +153,7 @@ hist(cellular.fit9$residuals) # is near to normal distribution
 # We assume there is no multicollinearity between predictors ::
 vif(cellular.fit9)
 # The third assumption we make is that we have no influential data points :: 
-cooks.distance(cellular.fit9)
+summary(cooks.distance(cellular.fit9))
 influencePlot(cellular.fit9)
 
 # after removing these points, the statistics and plot became poor to original.

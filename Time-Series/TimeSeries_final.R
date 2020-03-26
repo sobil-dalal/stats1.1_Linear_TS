@@ -15,6 +15,7 @@ row.names(data) <- 1:49
 
 # creating time series data and analysing
 gdp <- ts(data = data$Gross.Domestic.Product..GDP., start = 1970, end = 2018, frequency = 1)
+summary(gdp)
 
 par(mfrow = c(2,2))
 # checking the plots - examining the error, trend, seasonality
@@ -38,7 +39,7 @@ round(accuracy(gdp.2.ets),3)
 # Holts Model with damped Trend Model 3 (level + trend + damped)- 
 gdp.3.holt.d <- holt(gdp, h = 3, damped = TRUE, PI=FALSE)
 gdp.3.holt.d
-round(accuracy(gdp.3.holt.d),3) ######------BEST ETS-----######
+round(accuracy(gdp.3.holt.d),2) ######------BEST ETS-----######
 
 # Auto ETS method Model
 gdp.ets <- ets(gdp, model = "ZZZ")
@@ -71,7 +72,7 @@ adf.test(ddgdp) # stationary
 
 
 # Chossing p and q value
-ggtsdisplay(ddgdp)
+ggtsdisplay(ddgdp, main = "Difference = 2")
 
 # Model 1
 ddgdp.1 <- arima(x = gdp, order = c(1,2,0))
@@ -81,7 +82,8 @@ round(accuracy(ddgdp.1),3)
 # Model 2
 ddgdp.2 <- arima(x = gdp, order = c(4,2,0))
 ddgdp.2
-round(accuracy(ddgdp.2),3) #####-------BEST---------############
+summary(ddgdp.2)
+round(accuracy(ddgdp.2),2) #####-------BEST---------############
 
 # Checking auto ARIMA
 ddgdp.3.auto <- auto.arima(gdp)
@@ -95,9 +97,4 @@ par(mfrow = c(1,1))
 qqnorm(ddgdp.2$residuals,main = "Arima (p,d,q) = (4,2,0)")
 qqline(ddgdp.2$residuals)
 checkresiduals(ddgdp.2)
-
-
-
-
-
-
+Box.test(ddgdp.2$residuals, type = "Ljung-Box")
